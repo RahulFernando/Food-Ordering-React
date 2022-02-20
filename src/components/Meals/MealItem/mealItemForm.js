@@ -1,12 +1,28 @@
-import React from 'react';
+import React, { useRef, useState } from 'react';
 import Input from '../../UI/input';
 
 import classes from './mealForm.module.css';
 
 const MealItemForm = (props) => {
+  const amountRef =  useRef();
+  const [valid, setValid] = useState(true);
+
+  const submitHandler = (e) => {
+    e.preventDefault();
+
+    const amount = +amountRef.current.value;
+
+    if(amount === 0) {
+      setValid(false);
+      return;
+    }
+
+    props.onAddItemCart(amount);
+  }
   return (
-    <form className={classes.form}>
+    <form className={classes.form} onSubmit={submitHandler}>
       <Input
+        ref={amountRef}
         label="Amount"
         input={{
           id: 'amount_' + props.id,
@@ -18,6 +34,7 @@ const MealItemForm = (props) => {
         }}
       />
       <button>+ Add</button>
+      {!valid && <p>Please enter valid amount between 1 to 5</p>}
     </form>
   );
 };
