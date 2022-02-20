@@ -14,7 +14,7 @@ const Header = (props) => {
     <>
       <header className={classes.header}>
         <h1>ReactMeals</h1>
-        <CartButton />
+        <CartButton onCartShow={props.onCartShow} />
       </header>
       <div className={classes['main-image']}>
         <img src={mealsImage} alt="meals" />
