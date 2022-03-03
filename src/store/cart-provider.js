@@ -7,24 +7,71 @@ const INIT = {
 };
 
 const cartReducer = (state, action) => {
-  switch (action.type) {
-    case 'ADD_ITEM':
+    if (action.type === 'ADD_ITEM') {
+      const existingIndex = state.items.findIndex(
+        (item) => item.id === action.payload.id
+      );
+
+      const existingItem = state.items[existingIndex];
+      let updatedItems;
+
+      console.log(action.payload.amount);
+
+      if (existingItem) {
+        const updatedItem = {
+          ...existingItem,
+          amount: existingItem.amount + action.payload.amount,
+        };
+        updatedItems = [...state.items];
+        updatedItems[existingIndex] = updatedItem;
+      } else {
+        updatedItems = state.items.concat(action.payload);
+      }
+
       return {
-        items: state.items.concat(action.payload),
+        items: updatedItems,
         totalAmount:
           state.totalAmount + action.payload.price * action.payload.amount,
       };
-      default:
-        return state;
-  }
+
+    }
+
+    if (action.type === 'REMOVE_ITEM') {
+      const existingIndex = state.items.findIndex(
+        (item) => item.id === action.payload
+      );
+      const existingItem = state.items[existingIndex];
+      const updatedTotalAmount = state.totalAmount - existingItem.price;
+      let updatedItems;
+
+      if (existingItem.amount === 1) {
+        updatedItems = state.items.filter(item => item.id !== action.payload);
+      } else {
+        const updatedItem = {...existingItem, amount: existingItem.amount - 1 };
+        updatedItems = [ ...state.items ];
+        updatedItems[existingIndex] = updatedItem;
+      }
+
+      return {
+        items: updatedItems,
+        totalAmount: updatedTotalAmount
+      }
+
+    }
+    return state;
 };
 
 const CartProvider = (props) => {
   const [cartState, dispatch] = useReducer(cartReducer, INIT);
+
   const addItemHandler = (item) => {
     dispatch({ type: 'ADD_ITEM', payload: item });
   };
-  const removeItemHandler = (id) => {};
+
+  const removeItemHandler = (id) => {
+    dispatch({ type: 'REMOVE_ITEM', payload: id });
+  };
+
   const context = {
     items: cartState.items,
     totalAmount: cartState.totalAmount,
