@@ -1,38 +1,61 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import Card from '../UI/card';
 import MealItem from './MealItem/mealItem';
 
 import classes from './available.module.css';
 
-const DUMMY_MEALS = [
-  {
-    id: 'm1',
-    name: 'Sushi',
-    description: 'Finest fish and veggies',
-    price: 22.99,
-  },
-  {
-    id: 'm2',
-    name: 'Schnitzel',
-    description: 'A german specialty!',
-    price: 16.5,
-  },
-  {
-    id: 'm3',
-    name: 'Barbecue Burger',
-    description: 'American, raw, meaty',
-    price: 12.99,
-  },
-  {
-    id: 'm4',
-    name: 'Green Bowl',
-    description: 'Healthy...and green...',
-    price: 18.99,
-  },
-];
-
 const Available = () => {
-  const mealsList = DUMMY_MEALS.map((meal) => (
+  const [meals, setMeals] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState();
+
+  useEffect(() => {
+    const fetchMeals = async () => {
+      const response = await fetch(
+        'https://react-http-3606c-default-rtdb.asia-southeast1.firebasedatabase.app/meals.json'
+      );
+
+      if (!response.ok) {
+        throw new Error('Something went wrong');
+      }
+
+      const data = await response.json();
+      const loadedMeals = [];
+
+      for (const key in data) {
+        loadedMeals.push({
+          id: key,
+          name: data[key].name,
+          description: data[key].description,
+          price: data[key].price,
+        });
+      }
+
+      setMeals(loadedMeals);
+      setLoading(false);
+    };
+
+    fetchMeals().catch((err) => {
+      setLoading(false);
+      setError(err.message);
+    });
+  }, []);
+
+  console.log(error);
+
+  if (loading) {
+    return <section className={classes['meals-loading']}>Loading...</section>;
+  }
+
+  if (error) {
+    return (
+      <section className={classes['meals-error']}>
+        <p>{error}</p>
+      </section>
+    );
+  }
+
+  const mealsList = meals.map((meal) => (
     <MealItem
       key={meal.id}
       id={meal.id}
