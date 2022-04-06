@@ -38,7 +38,12 @@ const Checkout = (props) => {
     });
 
     if (!nameValid && !streetValid && !postalValid && !cityValid) {
-      return;
+      props.onConfirm({
+        name,
+        street,
+        postal,
+        city
+      })
     }
   };
 
